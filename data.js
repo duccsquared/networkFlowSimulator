@@ -40,11 +40,14 @@ class CoordObject {
 class Draggable extends CoordObject {
   static draggableList = []
   static selectedDraggable = null;
-  constructor(ref,id,width,innerHTML) {
+  constructor(ref,id,x1,y1,innerHTML) {
     super(id)
     this.id = id
-    ref.innerHTML += innerHTML;
-    this.x1 = 50; this.y1 = 50; this.width = width;
+    ref.innerHTML += `
+    <div id="${id}" style="position: absolute">
+      ${innerHTML}
+    </div>`;
+    this.x1 = x1; this.y1 = y1;
 
     this.offsetX = 0; this.offsetY = 0
     Draggable.draggableList.push(this)
@@ -57,7 +60,6 @@ class Draggable extends CoordObject {
     // find difference between card and mouse position and set to offset
     this.offsetX = this.x1 - mousePosX 
     this.offsetY = this.y1 - mousePosY
-    console.log(Draggable.selectedDraggable)
   }
   onMouseMove(e) {
     let mousePosX = getMousePosX(e); let mousePosY = getMousePosY(e);
@@ -73,20 +75,11 @@ class Draggable extends CoordObject {
 }
 
 
-function getMousePosX(e) {
-  return e.clientX
-}
-function getMousePosY(e) {
-  return e.clientY
-}
+function getMousePosX(e) {return e.clientX}
+function getMousePosY(e) {return e.clientY}
 
 function pointIntersects(x,y,obj) {
-  if(x>=obj.x1 && y>=obj.y1 && x<=obj.x2 && y<=obj.y2) {
-      return true 
-  }
-  else {
-      return false
-  }
+  return x>=obj.x1 && y>=obj.y1 && x<=obj.x2 && y<=obj.y2
 }
 function findIntersecting(x,y,objList) {
   // loop through objects
@@ -136,29 +129,18 @@ function onMouseUp(e) {
   }
 }
 
-divRef = document.getElementById("items")
-new Draggable(divRef,"beep",100,`
-<!-- Draggable DIV -->
-<div id="beep" style="position: absolute; z-index: 9; background-color: #f1f1f1; border: 1px solid #d3d3d3; text-align: center;">
-    <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
-    <div style="padding: 10px; cursor: move; z-index: 10; background-color: #2196F3; color: #fff;">Click here to move</div>
-    <p>Move</p>
-    <p>this</p>
-    <p>DIV</p>
-</div> 
-`)
-new Draggable(divRef,"beep2",100,`
-<!-- Draggable DIV -->
-<div id="beep2" style="position: absolute; z-index: 9; background-color: #f1f1f1; border: 1px solid #d3d3d3; text-align: center;">
-    <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
-    <div style="padding: 10px; cursor: move; z-index: 10; background-color: #2196F3; color: #fff;">Click here to move</div>
-    <p>Move</p>
-    <p>this</p>
-    <p>DIV</p>
-</div> 
-`)
-
 // set event listeners
 document.onmousedown = onMouseDown;
 document.onmousemove = onMouseMove;
 document.onmouseup = onMouseUp;
+
+divRef = document.getElementById("items")
+
+var testHTML = `
+<div style="background-color: #2f2ff1; border: 1px solid #1313d3; width: 50px; height: 50px">
+</div> 
+`
+
+new Draggable(divRef,"beep",100,100,testHTML)
+new Draggable(divRef,"beep2",100,200,testHTML)
+
