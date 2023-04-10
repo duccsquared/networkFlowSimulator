@@ -26,6 +26,76 @@ class Node extends Draggable {
   }
 }
 
+// ----------------------------------------------------
+
+class Mode {
+  constructor(id,onMouseDown=(e)=>{},onMouseMove=(e)=>{},onMouseUp=(e)=>{}) {
+    modeDict[id] = this 
+    this.onMouseDown = onMouseDown
+    this.onMouseMove = onMouseMove
+    this.onMouseUp = onMouseUp
+  }
+  onMouseDown(e) {
+    this.onMouseDown(e)
+  }
+  onMouseMove(e) {
+    this.onMouseMove(e)
+  }
+  onMouseUp(e) {
+    this.onMouseUp(e)
+  }
+}
+let mouseDownFunc = null; let mouseMoveFunc = null; let mouseUpFunc = null; 
+
+
+// ----------------------------------------------------
+
+mouseDownFunc = (e) => {
+  // only run if nothing is selected
+  if(Draggable.selectedDraggable==null) {
+    // get mouse position
+    // start dragging obj if an obj is selected
+    let obj = findIntersecting(mousePosX,mousePosY,Draggable.draggableList)
+    if(obj!=null) {
+      obj.onMouseDown()
+    }
+  }
+}
+mouseMoveFunc = (e) => {
+  // if a card is selected, move it
+  if(Draggable.selectedDraggable!=null) {
+    Draggable.selectedDraggable.onMouseMove();
+  }
+  // if the mouse is hovering over a card, set the cursor accordingly
+  if(findIntersecting(mousePosX,mousePosY,Draggable.draggableList)) {
+    document.body.style.cursor = "move"
+  }
+}
+mouseUpFunc = (e) => {
+  // release card
+  if(Draggable.selectedDraggable!=null) {
+    Draggable.selectedDraggable.onMouseUp();
+  }
+}
+new Mode(MOVE_MODE,mouseDownFunc,mouseMoveFunc,mouseUpFunc)
+
+// ----------------------------------------------------
+
+mouseDownFunc = (e) => {
+  let obj = findIntersecting(mousePosX,mousePosY,Draggable.draggableList)
+  if(obj!=null) {obj.delete()}
+}
+mouseMoveFunc = (e) => {
+  // if the mouse is hovering over a card, set the cursor accordingly
+  if(findIntersecting(mousePosX,mousePosY,Draggable.draggableList)) {
+      document.body.style.cursor = "pointer"
+  }
+}
+
+new Mode(DELETE_MODE,mouseDownFunc,mouseMoveFunc)
+
+// ----------------------------------------------------
+
 function pointIntersects(x,y,obj) {
   return x>=obj.x1 && y>=obj.y1 && x<=obj.x2 && y<=obj.y2
 }
@@ -40,52 +110,11 @@ function findIntersecting(x,y,objList) {
   return null
 }
 
-function onMouseDownMoveMode(e) {
-  // only run if nothing is selected
-  if(Draggable.selectedDraggable==null) {
-    // get mouse position
-    // start dragging obj if an obj is selected
-    let obj = findIntersecting(mousePosX,mousePosY,Draggable.draggableList)
-    if(obj!=null) {
-      obj.onMouseDown()
-    }
-}
-}
-
-function onMouseDownDeleteMode(e) {
-  let obj = findIntersecting(mousePosX,mousePosY,Draggable.draggableList)
-  if(obj!=null) {
-    obj.delete()
-  }
-}
+// ----------------------------------------------------
 
 function onMouseDown(e) {
   // do something based on mode
-  if(currentMode==MOVE_MODE) {
-    onMouseDownMoveMode(e)
-  }
-  else if(currentMode==DELETE_MODE) {
-    onMouseDownDeleteMode(e)
-  }
-}
-
-function onMouseMoveMoveMode(e) {
-  // if a card is selected
-  if(Draggable.selectedDraggable!=null) {
-    // move card
-    Draggable.selectedDraggable.onMouseMove();
-  }
-    // if the mouse is hovering over a card, set the cursor accordingly
-    if(findIntersecting(mousePosX,mousePosY,Draggable.draggableList)) {
-      document.body.style.cursor = "move"
-  }
-}
-
-function onMouseMoveDeleteMode(e) {
-    // if the mouse is hovering over a card, set the cursor accordingly
-    if(findIntersecting(mousePosX,mousePosY,Draggable.draggableList)) {
-      document.body.style.cursor = "pointer"
-  }
+  modeDict[currentMode].onMouseDown(e)
 }
 
 function onMouseMove(e) {
@@ -95,27 +124,12 @@ function onMouseMove(e) {
   // set default mouse 
   document.body.style.cursor = "auto"
   // do something based on mode
-  if(currentMode==MOVE_MODE) {
-    onMouseMoveMoveMode(e)
-  }
-  else if(currentMode==DELETE_MODE) {
-    onMouseMoveDeleteMode(e)
-  }
-}
-
-
-function onMouseUpMoveMode(e) {
-  // release card
-  if(Draggable.selectedDraggable!=null) {
-    Draggable.selectedDraggable.onMouseUp();
-  }
+  modeDict[currentMode].onMouseMove(e)
 }
 
 function onMouseUp(e) {
   // do something based on mode
-  if(currentMode==MOVE_MODE) {
-    onMouseUpMoveMode(e)
-  }
+  modeDict[currentMode].onMouseUp(e)
 }
 
 // set event listeners

@@ -7,4 +7,4 @@ const LINE_MODE = 2
 const DELETE_MODE = 3
 
 let currentMode = MOVE_MODE
-
+let modeDict = {}
