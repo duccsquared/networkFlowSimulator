@@ -52,31 +52,24 @@ class Draggable extends CoordObject {
     this.offsetX = 0; this.offsetY = 0
     Draggable.draggableList.push(this)
     }
-  onMouseDown(e) {
+  onMouseDown() {
     // set selected draggable
     Draggable.selectedDraggable = this;
-    let mousePosX = getMousePosX(e); let mousePosY = getMousePosY(e);
     
     // find difference between card and mouse position and set to offset
     this.offsetX = this.x1 - mousePosX 
     this.offsetY = this.y1 - mousePosY
   }
-  onMouseMove(e) {
-    let mousePosX = getMousePosX(e); let mousePosY = getMousePosY(e);
+  onMouseMove() {
     this.x1 = mousePosX + this.offsetX
     this.y1 = mousePosY + this.offsetY
   }
-  onMouseUp(e) {
+  onMouseUp() {
     // get mouse position
-    let mousePosX = getMousePosX(e); let mousePosY = getMousePosY(e);
     // deselect object
     Draggable.selectedDraggable = null 
   }
 }
-
-
-function getMousePosX(e) {return e.clientX}
-function getMousePosY(e) {return e.clientY}
 
 function pointIntersects(x,y,obj) {
   return x>=obj.x1 && y>=obj.y1 && x<=obj.x2 && y<=obj.y2
@@ -96,11 +89,10 @@ function onMouseDown(e) {
   // only run if nothing is selected
   if(Draggable.selectedDraggable==null) {
       // get mouse position
-      let mousePosX = getMousePosX(e); let mousePosY = getMousePosY(e);
       // start dragging obj if an obj is selected
       let obj = findIntersecting(mousePosX,mousePosY,Draggable.draggableList)
       if(obj!=null) {
-        obj.onMouseDown(e)
+        obj.onMouseDown()
       }
   }
 }
@@ -109,10 +101,11 @@ function onMouseMove(e) {
   // if a card is selected
   if(Draggable.selectedDraggable!=null) {
       // move card
-      Draggable.selectedDraggable.onMouseMove(e);
+      Draggable.selectedDraggable.onMouseMove();
   }
-  // get mouse position
-  let mousePosX = getMousePosX(e); let mousePosY = getMousePosY(e);
+  // update current mouse position
+  mousePosX = e.clientX
+  mousePosY = e.clientY
   // if the mouse is hovering over a card, set the cursor accordingly
   if(findIntersecting(mousePosX,mousePosY,Draggable.draggableList)) {
       document.body.style.cursor = "move"
@@ -125,7 +118,7 @@ function onMouseMove(e) {
 function onMouseUp(e) {
   // release card
   if(Draggable.selectedDraggable!=null) {
-    Draggable.selectedDraggable.onMouseUp(e);
+    Draggable.selectedDraggable.onMouseUp();
   }
 }
 
@@ -146,5 +139,6 @@ new Draggable(divRef,"beep2",100,300,testHTML)
 
 function createNewDraggable() {
   total += 1
-  new Draggable(divRef,"beep" + total,100,150,testHTML)
+  let obj = new Draggable(divRef,"beep" + total,mousePosX,mousePosY,testHTML)
+  obj.onMouseDown()
 }
