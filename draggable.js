@@ -37,35 +37,39 @@ class CoordObject {
   
   
 class Draggable extends CoordObject {
-static draggableList = []
-static selectedDraggable = null;
-constructor(ref,id,x1,y1,innerHTML) {
-    super(id)
-    this.id = id
-    ref.innerHTML += `
-    <div id="${id}" style="position: absolute">
-    ${innerHTML}
-    </div>`;
-    this.x1 = x1; this.y1 = y1;
+    static draggableList = []
+    static selectedDraggable = null;
+    constructor(ref,id,x1,y1,innerHTML) {
+        super(id)
+        this.id = id
+        ref.innerHTML += `
+        <div id="${id}" style="position: absolute">
+        ${innerHTML}
+        </div>`;
+        this.x1 = x1; this.y1 = y1;
 
-    this.offsetX = 0; this.offsetY = 0
-    Draggable.draggableList.push(this)
+        this.offsetX = 0; this.offsetY = 0
+        Draggable.draggableList.push(this)
+        }
+    onMouseDown() {
+        // set selected draggable
+        Draggable.selectedDraggable = this;
+        
+        // find difference between card and mouse position and set to offset
+        this.offsetX = this.x1 - mousePosX 
+        this.offsetY = this.y1 - mousePosY
     }
-onMouseDown() {
-    // set selected draggable
-    Draggable.selectedDraggable = this;
-    
-    // find difference between card and mouse position and set to offset
-    this.offsetX = this.x1 - mousePosX 
-    this.offsetY = this.y1 - mousePosY
-}
-onMouseMove() {
-    this.x1 = mousePosX + this.offsetX
-    this.y1 = mousePosY + this.offsetY
-}
-onMouseUp() {
-    // get mouse position
-    // deselect object
-    Draggable.selectedDraggable = null 
-}
-}
+    onMouseMove() {
+        this.x1 = mousePosX + this.offsetX
+        this.y1 = mousePosY + this.offsetY
+    }
+    onMouseUp() {
+        // get mouse position
+        // deselect object
+        Draggable.selectedDraggable = null 
+    }
+    delete() {
+        Draggable.draggableList.splice(Draggable.draggableList.indexOf(this), 1);
+        document.getElementById(this.id).remove();
+    }
+    }

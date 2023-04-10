@@ -16,9 +16,13 @@ class Node extends Draggable {
     </div> 
   `
   constructor(x1,y1) {
-    divRef = document.getElementById("items")
+    let divRef = document.getElementById("items")
     super(divRef,"node"+genRandomID(),x1,y1,Node.nodeHTML)
     Node.nodeList.push(this)
+  }
+  delete() {
+    super.delete()
+    Node.nodeList.splice(Node.nodeList.indexOf(this), 1);
   }
 }
 
@@ -36,40 +40,81 @@ function findIntersecting(x,y,objList) {
   return null
 }
 
-function onMouseDown(e) {
+function onMouseDownMoveMode(e) {
   // only run if nothing is selected
   if(Draggable.selectedDraggable==null) {
-      // get mouse position
-      // start dragging obj if an obj is selected
-      let obj = findIntersecting(mousePosX,mousePosY,Draggable.draggableList)
-      if(obj!=null) {
-        obj.onMouseDown()
-      }
+    // get mouse position
+    // start dragging obj if an obj is selected
+    let obj = findIntersecting(mousePosX,mousePosY,Draggable.draggableList)
+    if(obj!=null) {
+      obj.onMouseDown()
+    }
+}
+}
+
+function onMouseDownDeleteMode(e) {
+  let obj = findIntersecting(mousePosX,mousePosY,Draggable.draggableList)
+  if(obj!=null) {
+    obj.delete()
+  }
+}
+
+function onMouseDown(e) {
+  // do something based on mode
+  if(currentMode==MOVE_MODE) {
+    onMouseDownMoveMode(e)
+  }
+  else if(currentMode==DELETE_MODE) {
+    onMouseDownDeleteMode(e)
+  }
+}
+
+function onMouseMoveMoveMode(e) {
+  // if a card is selected
+  if(Draggable.selectedDraggable!=null) {
+    // move card
+    Draggable.selectedDraggable.onMouseMove();
+  }
+    // if the mouse is hovering over a card, set the cursor accordingly
+    if(findIntersecting(mousePosX,mousePosY,Draggable.draggableList)) {
+      document.body.style.cursor = "move"
+  }
+}
+
+function onMouseMoveDeleteMode(e) {
+    // if the mouse is hovering over a card, set the cursor accordingly
+    if(findIntersecting(mousePosX,mousePosY,Draggable.draggableList)) {
+      document.body.style.cursor = "pointer"
   }
 }
 
 function onMouseMove(e) {
-  // if a card is selected
-  if(Draggable.selectedDraggable!=null) {
-      // move card
-      Draggable.selectedDraggable.onMouseMove();
-  }
   // update current mouse position
   mousePosX = e.clientX
   mousePosY = e.clientY
-  // if the mouse is hovering over a card, set the cursor accordingly
-  if(findIntersecting(mousePosX,mousePosY,Draggable.draggableList)) {
-      document.body.style.cursor = "move"
+  // set default mouse 
+  document.body.style.cursor = "auto"
+  // do something based on mode
+  if(currentMode==MOVE_MODE) {
+    onMouseMoveMoveMode(e)
   }
-  else {
-      document.body.style.cursor = "auto"
+  else if(currentMode==DELETE_MODE) {
+    onMouseMoveDeleteMode(e)
+  }
+}
+
+
+function onMouseUpMoveMode(e) {
+  // release card
+  if(Draggable.selectedDraggable!=null) {
+    Draggable.selectedDraggable.onMouseUp();
   }
 }
 
 function onMouseUp(e) {
-  // release card
-  if(Draggable.selectedDraggable!=null) {
-    Draggable.selectedDraggable.onMouseUp();
+  // do something based on mode
+  if(currentMode==MOVE_MODE) {
+    onMouseUpMoveMode(e)
   }
 }
 
@@ -78,15 +123,16 @@ document.onmousedown = onMouseDown;
 document.onmousemove = onMouseMove;
 document.onmouseup = onMouseUp;
 
-divRef = document.getElementById("items")
-
-var testHTML = `
-<div style="background-color: #2f2ff1; border: 1px solid #1313d3; width: 50px; height: 50px">
-</div> 
-`
-
 
 function createNewDraggable() {
   let obj = new Node(mousePosX,mousePosY)
   obj.onMouseDown()
+  currentMode = MOVE_MODE
+}
+
+function setMoveMode() {
+  currentMode = MOVE_MODE
+}
+function setDeleteMode() {
+  currentMode = DELETE_MODE
 }
