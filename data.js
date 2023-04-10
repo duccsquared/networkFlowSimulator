@@ -140,7 +140,11 @@ var testHTML = `
 <div style="background-color: #2f2ff1; border: 1px solid #1313d3; width: 50px; height: 50px">
 </div> 
 `
-
+var total = 2
 new Draggable(divRef,"beep",100,200,testHTML)
 new Draggable(divRef,"beep2",100,300,testHTML)
 
+function createNewDraggable() {
+  total += 1
+  new Draggable(divRef,"beep" + total,100,150,testHTML)
+}
