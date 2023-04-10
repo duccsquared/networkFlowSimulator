@@ -141,6 +141,6 @@ var testHTML = `
 </div> 
 `
 
-new Draggable(divRef,"beep",100,100,testHTML)
-new Draggable(divRef,"beep2",100,200,testHTML)
+new Draggable(divRef,"beep",100,200,testHTML)
+new Draggable(divRef,"beep2",100,300,testHTML)
 
