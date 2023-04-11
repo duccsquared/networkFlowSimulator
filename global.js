@@ -1,6 +1,8 @@
 let mousePosX = 0
 let mousePosY = 0
 
+let selectedNode = null 
+
 const SELECT_MODE = 0
 const MOVE_MODE = 1
 const LINE_MODE = 2

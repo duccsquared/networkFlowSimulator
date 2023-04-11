@@ -19,12 +19,64 @@ class Node extends Draggable {
     let divRef = document.getElementById("items")
     super(divRef,"node"+genRandomID(),x1,y1,Node.nodeHTML)
     Node.nodeList.push(this)
+    this.edges = []
   }
   delete() {
     super.delete()
+    let edgeCopy = [...this.edges]
+    for(let i in edgeCopy) {
+      edgeCopy[i].delete()
+    }
     Node.nodeList.splice(Node.nodeList.indexOf(this), 1);
   }
+  onMouseMove() {
+    super.onMouseMove()
+    for(let i in this.edges) {
+      this.edges[i].onMouseMove()
+    }
+  }
 }
+// ----------------------------------------------------
+class Edge extends CoordObject {
+
+  constructor(u,v) {
+    let divRef = document.getElementById("items")
+    super("edge"+genRandomID())
+    this.u = u 
+    this.v = v 
+    divRef.innerHTML += this.createHTML()
+    this.updateInnerHTML()
+    this.u.edges.push(this)
+    this.v.edges.push(this)
+  }
+  createHTML() {
+    return `
+    <div id=${this.id} style="position: absolute; z-index: -1">
+    </div>
+    `
+  }
+  updateInnerHTML() {
+    let Y_ADJUST = -110 // needed to ensure that the line aligns properly
+    let maxX = Math.max(this.u.x,this.v.x)
+    let maxY = Math.max(this.u.y,this.v.y) + Y_ADJUST
+    let lineRef = document.getElementById(this.id)
+    lineRef.innerHTML = `
+    <svg width="${maxX}px" height="${maxY}px">
+      <line x1=${this.u.x} y1=${this.u.y+Y_ADJUST} x2=${this.v.x} y2=${this.v.y+Y_ADJUST} stroke="red"/>
+    </svg>
+    `
+  }
+  onMouseMove() {
+    this.updateInnerHTML()
+  }
+
+  delete() {
+    document.getElementById(this.id).remove();
+    this.u.edges.splice(this.u.edges.indexOf(this), 1);
+    this.v.edges.splice(this.v.edges.indexOf(this), 1);
+  }
+}
+
 
 // ----------------------------------------------------
 
@@ -95,6 +147,27 @@ mouseMoveFunc = (e) => {
 new Mode(DELETE_MODE,mouseDownFunc,mouseMoveFunc)
 
 // ----------------------------------------------------
+mouseDownFunc = (e) => {
+  let obj = findIntersecting(mousePosX,mousePosY,Draggable.draggableList)
+  if(obj!=null) 
+  {
+    if(selectedNode==null) {
+      selectedNode = obj 
+    }
+    else {
+      new Edge(selectedNode,obj)
+      selectedNode = null 
+    }
+  }
+}
+mouseMoveFunc = (e) => {
+  // if the mouse is hovering over a card, set the cursor accordingly
+  if(findIntersecting(mousePosX,mousePosY,Draggable.draggableList)) {
+      document.body.style.cursor = "crosshair"
+  }
+}
+new Mode(LINE_MODE,mouseDownFunc,mouseMoveFunc)
+// ----------------------------------------------------
 
 function pointIntersects(x,y,obj) {
   return x>=obj.x1 && y>=obj.y1 && x<=obj.x2 && y<=obj.y2
@@ -143,7 +216,10 @@ function createNewDraggable() {
   obj.onMouseDown()
   currentMode = MOVE_MODE
 }
-
+function createLine() {
+  //new Edge(Node.nodeList[0],Node.nodeList[1])
+  currentMode = LINE_MODE 
+}
 function setMoveMode() {
   currentMode = MOVE_MODE
 }
