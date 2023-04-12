@@ -56,10 +56,105 @@ class VisibleEdge extends Edge {
     document.getElementById(this.id).remove();
     super.delete()
   }
+  set flow(flow) {super.flow = flow; this.updateInnerHTML()}
+  set capacity(capacity) {super.capacity = capacity; this.updateInnerHTML()}
+  set lowerBound(lowerBound) {super.lowerBound = lowerBound; this.updateInnerHTML()}
+
+  get flow() {return super.flow;}
+  get capacity() {return super.capacity;}
+  get lowerBound() {return super.lowerBound;}
+}
+// ----------------------------------------------------
+
+class SubMenu extends Draggable {
+  static subMenuList = []
+  constructor() {
+    let divRef = document.getElementById("items")
+    super(divRef,"SubMenu"+genRandomID(),0,200,'')
+    SubMenu.subMenuList.push(this)
+    this.updateInnerHTML() 
+  }
+  static findSubMenuByID(id) {
+    for(let i in this.subMenuList) {
+      let subMenu = this.subMenuList[i]
+      if(id==subMenu.id) {
+        return subMenu
+      }
+    }
+    return null
+  }
+  static deleteSubMenu(val) {
+    SubMenu.findSubMenuByID(val).delete()
+  }
+  updateInnerHTML(dataHTML="") {
+    let menuRef = document.getElementById(this.id)
+    menuRef.innerHTML += `
+      <div class="card"}>
+        <div class="card-body">
+        <div style="display: flex; justify-content: flex-end">
+          <button id="${this.id+"button"}" class="transparentIcon">
+            <i class="bi bi-x-circle"></i>
+          </button>
+        </div>
+          ${dataHTML}
+        </div>
+      </div>
+    `
+    let menu = this
+    document.getElementById(this.id+"button").addEventListener("click", function(){ menu.delete() });
+  }
+  delete() {
+    super.delete()
+    SubMenu.subMenuList.splice(SubMenu.subMenuList.indexOf(this), 1);
+  }
 }
 
+class NodeSubMenu extends SubMenu {
+  constructor(node) {
+    super()
+    this.node = node
+  }
+  updateInnerHTML() {
+    let html = `
+      <p>Node</p>
+      <div class="input-group input-group-sm mb-3">
+        <span class="input-group-text" id="inputGroup-sizing-sm">Demand</span>
+        <input id="${this.id + "inputDemand"}" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+      </div>
+    `
+    super.updateInnerHTML(html)
+    document.getElementById(this.id + "inputDemand").value = 0
+  }
+}
 
-
+class EdgeSubMenu extends SubMenu {
+  constructor(edge) {
+    super() 
+    this.edge = edge
+    this.setStartValues()
+  }
+  updateInnerHTML() {
+    let html = `
+      <p>Edge</p>
+      <div class="input-group input-group-sm mb-3">
+        <span class="input-group-text" id="inputGroup-sizing-sm">Lower Bound</span>
+        <input id="${this.id + "inputLowerBound"}" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+        </input>
+      </div>
+      <div class="input-group input-group-sm mb-3">
+        <span class="input-group-text" id="inputGroup-sizing-sm">Capacity</span>
+        <input id="${this.id + "inputCapacity"}" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" >
+      </div>
+    `
+    super.updateInnerHTML(html)
+    document.getElementById(this.id + "inputLowerBound").addEventListener('change', (e) => this.edge.lowerBound = document.getElementById(this.id + "inputLowerBound").value)
+    document.getElementById(this.id + "inputCapacity").addEventListener('change', (e) => this.edge.capacity = document.getElementById(this.id + "inputCapacity").value)
+  }
+  setStartValues() {
+    document.getElementById(this.id + "inputLowerBound").value = this.edge.lowerBound
+    document.getElementById(this.id + "inputCapacity").value = this.edge.capacity
+  }
+}
 
 // ----------------------------------------------------
 
@@ -84,17 +179,53 @@ class Mode {
   
   
   // ----------------------------------------------------
+  mouseDownFunc = (e) => {
+    // only run if nothing is selected
+    if(Draggable.selectedDraggable==null) {
+      // start dragging obj if an obj is selected
+      let obj = findIntersecting(mousePosX,mousePosY,SubMenu.subMenuList)
+      if(obj!=null) {obj.onMouseDown()}
+    }
+    // open menu if clicked
+    let node = findIntersecting(mousePosX,mousePosY,Node.nodeList)
+    let edge = findIntersectingLine(mousePosX,mousePosY,Edge.edgeList)
+    // only one menu at a time
+    if(node!=null || edge!=null) {
+      if(SubMenu.subMenuList.length>0) {
+        SubMenu.subMenuList[0].delete()
+      }
+    }
+    if(node!=null) {new NodeSubMenu(node)}
+    else if(edge!=null) {new EdgeSubMenu(edge)}
+  }
+  mouseMoveFunc = (e) => {
+    // if a card is selected, move it
+    if(Draggable.selectedDraggable!=null) {
+      Draggable.selectedDraggable.onMouseMove();
+    }
+    // show nodes and edges as selectable
+    if(findIntersecting(mousePosX,mousePosY,Node.nodeList)) {
+      document.body.style.cursor = "pointer"
+    }
+    else if(findIntersectingLine(mousePosX,mousePosY,Edge.edgeList)) {
+      document.body.style.cursor = "pointer"
+    }
+  }
+  mouseUpFunc = (e) => {
+    // release card
+    if(Draggable.selectedDraggable!=null) {
+      Draggable.selectedDraggable.onMouseUp();
+    }
+  }
+  new Mode(SELECT_MODE,mouseDownFunc,mouseMoveFunc,mouseUpFunc)
+  // ---------------------------------------------------
   
   mouseDownFunc = (e) => {
     // only run if nothing is selected
     if(Draggable.selectedDraggable==null) {
-      // get mouse position
       // start dragging obj if an obj is selected
       let obj = findIntersecting(mousePosX,mousePosY,Draggable.draggableList)
-      if(obj!=null) {
-        obj.onMouseDown()
-      }
-
+      if(obj!=null) {obj.onMouseDown()}
     }
   }
   mouseMoveFunc = (e) => {
@@ -105,9 +236,6 @@ class Mode {
     // if the mouse is hovering over a card, set the cursor accordingly
     if(findIntersecting(mousePosX,mousePosY,Draggable.draggableList)) {
       document.body.style.cursor = "move"
-    }
-    else if(findIntersectingLine(mousePosX,mousePosY,Edge.edgeList)) {
-      document.body.style.cursor = "pointer"
     }
   }
   mouseUpFunc = (e) => {
@@ -121,14 +249,14 @@ class Mode {
   // ----------------------------------------------------
   
   mouseDownFunc = (e) => {
-    let obj = findIntersecting(mousePosX,mousePosY,Draggable.draggableList)
+    let obj = findIntersecting(mousePosX,mousePosY,Node.nodeList)
     if(obj!=null) {obj.delete()}
     let edge = findIntersectingLine(mousePosX,mousePosY,Edge.edgeList)
     if(edge!=null) {edge.delete()}
   }
   mouseMoveFunc = (e) => {
     // if the mouse is hovering over a node, set the cursor accordingly
-    if(findIntersecting(mousePosX,mousePosY,Draggable.draggableList)) {
+    if(findIntersecting(mousePosX,mousePosY,Node.nodeList)) {
         document.body.style.cursor = "pointer"
     }
     // check if the mouse is hovering over an edge
@@ -141,7 +269,7 @@ class Mode {
   
   // ----------------------------------------------------
   mouseDownFunc = (e) => {
-    let obj = findIntersecting(mousePosX,mousePosY,Draggable.draggableList)
+    let obj = findIntersecting(mousePosX,mousePosY,Node.nodeList)
     if(obj!=null) 
     {
       if(selectedNode==null) {
@@ -155,7 +283,7 @@ class Mode {
   }
   mouseMoveFunc = (e) => {
     // if the mouse is hovering over a card, set the cursor accordingly
-    if(findIntersecting(mousePosX,mousePosY,Draggable.draggableList)) {
+    if(findIntersecting(mousePosX,mousePosY,Node.nodeList)) {
         document.body.style.cursor = "crosshair"
     }
   }
@@ -252,7 +380,9 @@ function findIntersectingLine(x,y,lineList,margin=10) {
   document.onmousemove = onMouseMove;
   document.onmouseup = onMouseUp;
   
-  
+  function setSelectMode() {
+    currentMode = SELECT_MODE 
+  }
   function createNewDraggable() {
     let obj = new VisibleNode(mousePosX,mousePosY)
     obj.onMouseDown()

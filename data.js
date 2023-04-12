@@ -49,14 +49,22 @@ class Edge extends CoordObject {
     Edge.edgeList.push(this)
     this.u = u 
     this.v = v 
-    this.flow = flow
-    this.capacity = capacity // highest flow allowed
+    this._flow = flow
+    this._capacity = capacity // highest flow allowed
     this.isInverse = isInverse // is this an inverse edge?
     this.invEdge = null // this edges' counterpart
-    this.lowerBound = lowerBound // lowest flow allowed
+    this._lowerBound = lowerBound // lowest flow allowed
     this.u.edges.push(this)
     this.v.edges.push(this)
   }
+
+  get flow() {return this._flow;}
+  get capacity() {return this._capacity;}
+  get lowerBound() {return this._lowerBound;}
+
+  set flow(flow) {this._flow = flow}
+  set capacity(capacity) {this._capacity = capacity}
+  set lowerBound(lowerBound) {this._lowerBound = lowerBound}
 
   delete() {
     this.u.edges.splice(this.u.edges.indexOf(this), 1);

@@ -20,8 +20,12 @@
               <button class = "transparentIcon" aria-label="run or pause">
                 <i class="bi bi-play-circle" style="font-size:1.5rem;"></i>
               </button>
+              <!-- select -->
+              <button class = "transparentIcon" aria-label="insert node" onclick="setSelectMode()">
+                <i class="bi bi-cursor" style="font-size:1.5rem;"></i>
+              </button>
               <!-- insert node -->
-              <button class = "transparentIcon" aria-label="insert node" onclick="createNewDraggable()">
+              <button class = "transparentIcon" aria-label="insert node" onclick="(function(){createNewDraggable()})()">
                 <i class="bi bi-square" style="font-size:1.5rem;"></i>
               </button>
               <!-- insert edge -->
