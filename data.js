@@ -57,10 +57,11 @@ class Node extends Draggable {
 }
 // ----------------------------------------------------
 class Edge extends CoordObject {
-
+  static edgeList = []
   constructor(u,v,capacity=0,flow=0,isInverse=false,lowerBound=0) {
     let divRef = document.getElementById("items")
     super("edge"+genRandomID())
+    Edge.edgeList.push(this)
     this.u = u 
     this.v = v 
     this.flow = flow
@@ -103,6 +104,7 @@ class Edge extends CoordObject {
     document.getElementById(this.id).remove();
     this.u.edges.splice(this.u.edges.indexOf(this), 1);
     this.v.edges.splice(this.v.edges.indexOf(this), 1);
+    Edge.edgeList.splice(Edge.edgeList.indexOf(this), 1);
   }
   setCapacity(capacity) {
 
