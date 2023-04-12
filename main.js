@@ -1,3 +1,66 @@
+
+class VisibleNode extends Node {
+  constructor(x1,y1) {
+    let divRef = document.getElementById("items")
+    super(divRef,x1,y1)
+    this.updateInnerHTML()
+  }
+  onMouseMove() {
+    super.onMouseMove()
+    for(let i in this.edges) {
+      this.edges[i].onMouseMove()
+    }
+  }
+  updateInnerHTML() {
+    let ref = document.getElementById(this.id)
+    ref.innerHTML = `
+    <div style="background-color: #2f2ff1; border: 1px solid #1313d3; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center;">
+      <p style="color: white">${0}<p>
+    </div> 
+    `
+  }
+}
+class VisibleEdge extends Edge {
+  constructor(u,v,capacity=0,flow=0,isInverse=false,lowerBound=0) {
+    super(u,v,capacity,flow,isInverse,lowerBound)
+    let divRef = document.getElementById("items")
+    divRef.innerHTML += this.createHTML()
+    this.updateInnerHTML()
+  }
+  createHTML() {
+    return `
+    <div id=${this.id} style="position: absolute; z-index: -1">
+    </div>
+    `
+  }
+  updateInnerHTML() {
+    let Y_ADJUST = -110 // needed to ensure that the line aligns properly
+    let maxX = Math.max(this.u.x,this.v.x)
+    let maxY = Math.max(this.u.y,this.v.y) + Y_ADJUST
+    let x = (this.u.x + this.v.x)/2
+    let y = (this.u.y + this.v.y)/2+ Y_ADJUST
+    let lineRef = document.getElementById(this.id)
+    lineRef.innerHTML = `
+    <svg width="${maxX}px" height="${maxY}px">
+      <line x1=${this.u.x} y1=${this.u.y+Y_ADJUST} x2=${this.v.x} y2=${this.v.y+Y_ADJUST} stroke="red"/>
+    </svg>
+    <div style="position: absolute; top: ${y}px; left: ${x}px;">
+      <p style="color: red">${this.lowerBound}/${this.flow}/${this.capacity}</p>
+    <div>
+    `
+  }
+  onMouseMove() {
+    this.updateInnerHTML()
+  }
+  delete() {
+    document.getElementById(this.id).remove();
+    super.delete()
+  }
+}
+
+
+
+
 // ----------------------------------------------------
 
 class Mode {
@@ -85,7 +148,7 @@ class Mode {
         selectedNode = obj 
       }
       else {
-        new Edge(selectedNode,obj)
+        new VisibleEdge(selectedNode,obj)
         selectedNode = null 
       }
     }
@@ -191,7 +254,7 @@ function findIntersectingLine(x,y,lineList,margin=10) {
   
   
   function createNewDraggable() {
-    let obj = new Node(mousePosX,mousePosY)
+    let obj = new VisibleNode(mousePosX,mousePosY)
     obj.onMouseDown()
     currentMode = MOVE_MODE
   }
