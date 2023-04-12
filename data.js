@@ -11,16 +11,18 @@ function genRandomID(length=12) {
 
 class Node extends Draggable {
   static nodeList = []
-  
-  constructor(divRef,x1,y1) {
+  static sourceNode = new Node(document.getElementById("items"),0,0,true)
+  static sinkNode = new Node(document.getElementById("items"),0,0,true)
+  constructor(divRef,x1,y1,isSourceOrSink=false) {
     super(divRef,"node"+genRandomID(),x1,y1,"")
     Node.nodeList.push(this)
     this.edges = []
-    this.sourceEdge = null // edge from source to this vertex
-    this.sinkEdge = null // edge from this vertex to the sink
+    if(!isSourceOrSink) {
+      this.sourceEdge = new Edge(Node.sourceNode,this,0,0) // edge from source to this vertex
+      this.sinkEdge = new Edge(this,Node.sinkNode,0,0) // edge from this vertex to the sink
+    }
     this.visited = false // has this vertex been visited this iteration?
     this.prevEdge = null // inflow edge from a ford fulkerson iteration for backtracking
-    this.updateInnerHTML()
   }
   delete() {
     super.delete()
@@ -30,11 +32,10 @@ class Node extends Draggable {
     }
     Node.nodeList.splice(Node.nodeList.indexOf(this), 1);
   }
-  getDemand() {
-
-  }
-  setDemand(demand) {
-
+  get demand() {return this.sinkEdge.capacity - this.sourceEdge.capacity}
+  set demand(demand) {
+    this.sourceEdge.capacity = Math.abs(Math.min(0,demand))
+    this.sinkEdge.capacity = Math.abs(Math.max(0,demand))
   }
   changeDemand(demand,modifyFlow=false) {
 
@@ -84,6 +85,7 @@ class Edge extends CoordObject {
 
   }
 }
+
 
 
 class Graph {

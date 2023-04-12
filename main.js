@@ -8,21 +8,27 @@ class VisibleNode extends Node {
   onMouseMove() {
     super.onMouseMove()
     for(let i in this.edges) {
-      this.edges[i].onMouseMove()
+      if(this.edges[i] instanceof VisibleEdge) {
+        this.edges[i].onMouseMove()
+      }
     }
   }
   updateInnerHTML() {
     let ref = document.getElementById(this.id)
     ref.innerHTML = `
     <div style="background-color: #2f2ff1; border: 1px solid #1313d3; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center;">
-      <p style="color: white">${0}<p>
+      <p style="color: white">${this.demand}<p>
     </div> 
     `
   }
+  get demand() {return super.demand}
+  set demand(demand) {super.demand = demand; this.updateInnerHTML()}
 }
 class VisibleEdge extends Edge {
+  static visibleEdgeList = []
   constructor(u,v,capacity=0,flow=0,isInverse=false,lowerBound=0) {
     super(u,v,capacity,flow,isInverse,lowerBound)
+    VisibleEdge.visibleEdgeList.push(this)
     let divRef = document.getElementById("items")
     divRef.innerHTML += this.createHTML()
     this.updateInnerHTML()
@@ -54,6 +60,7 @@ class VisibleEdge extends Edge {
   }
   delete() {
     document.getElementById(this.id).remove();
+    VisibleEdge.visibleEdgeList.splice(VisibleEdge.visibleEdgeList.indexOf(this), 1);
     super.delete()
   }
   set flow(flow) {super.flow = flow; this.updateInnerHTML()}
@@ -113,6 +120,7 @@ class NodeSubMenu extends SubMenu {
   constructor(node) {
     super()
     this.node = node
+    this.setStartValues()
   }
   updateInnerHTML() {
     let html = `
@@ -123,7 +131,11 @@ class NodeSubMenu extends SubMenu {
       </div>
     `
     super.updateInnerHTML(html)
-    document.getElementById(this.id + "inputDemand").value = 0
+    document.getElementById(this.id + "inputDemand").addEventListener('change', (e) => this.node.demand = document.getElementById(this.id + "inputDemand").value)
+    
+  }
+  setStartValues() {
+    document.getElementById(this.id + "inputDemand").value = this.node.demand
   }
 }
 
@@ -188,7 +200,7 @@ class Mode {
     }
     // open menu if clicked
     let node = findIntersecting(mousePosX,mousePosY,Node.nodeList)
-    let edge = findIntersectingLine(mousePosX,mousePosY,Edge.edgeList)
+    let edge = findIntersectingLine(mousePosX,mousePosY,VisibleEdge.visibleEdgeList)
     // only one menu at a time
     if(node!=null || edge!=null) {
       if(SubMenu.subMenuList.length>0) {
@@ -207,7 +219,7 @@ class Mode {
     if(findIntersecting(mousePosX,mousePosY,Node.nodeList)) {
       document.body.style.cursor = "pointer"
     }
-    else if(findIntersectingLine(mousePosX,mousePosY,Edge.edgeList)) {
+    else if(findIntersectingLine(mousePosX,mousePosY,VisibleEdge.visibleEdgeList)) {
       document.body.style.cursor = "pointer"
     }
   }
