@@ -60,11 +60,17 @@ class Mode {
   mouseDownFunc = (e) => {
     let obj = findIntersecting(mousePosX,mousePosY,Draggable.draggableList)
     if(obj!=null) {obj.delete()}
+    let edge = findIntersectingLine(mousePosX,mousePosY,Edge.edgeList)
+    if(edge!=null) {edge.delete()}
   }
   mouseMoveFunc = (e) => {
-    // if the mouse is hovering over a card, set the cursor accordingly
+    // if the mouse is hovering over a node, set the cursor accordingly
     if(findIntersecting(mousePosX,mousePosY,Draggable.draggableList)) {
         document.body.style.cursor = "pointer"
+    }
+    // check if the mouse is hovering over an edge
+    else if(findIntersectingLine(mousePosX,mousePosY,Edge.edgeList)) {
+      document.body.style.cursor = "pointer"
     }
   }
   
