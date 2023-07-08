@@ -421,3 +421,45 @@ let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggl
 let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
   return new bootstrap.Tooltip(tooltipTriggerEl)
 })
+
+function generateTestData() {
+  u1 = new VisibleNode(150,100)
+  u2 = new VisibleNode(100,200)
+  u3 = new VisibleNode(200,200)
+  u4 = new VisibleNode(150,300)
+  u5 = new VisibleNode(50,300)
+  e1 = new VisibleEdge(u1,u2,3)
+  e2 = new VisibleEdge(u1,u3,3)
+  e3 = new VisibleEdge(u2,u3,2)
+  e4 = new VisibleEdge(u2,u4,3)
+  e5 = new VisibleEdge(u3,u4,2)
+  e6 = new VisibleEdge(u4,u5,2)
+  e7 = new VisibleEdge(u5,u2,2)
+
+  u1.demand = -4
+  u2.demand = -3
+  u3.demand = 2
+  u4.demand = 5
+}
+
+function generateTestData2() {
+  u1 = new VisibleNode(200,100)
+  u2 = new VisibleNode(100,300)
+  u3 = new VisibleNode(300,300)
+  u4 = new VisibleNode(200,500)
+
+  e1 = new VisibleEdge(u1,u2,3,0,false,1)
+  e2 = new VisibleEdge(u1,u3,3,0,false,1)
+  e3 = new VisibleEdge(u2,u3,2,0,false,1)
+  e4 = new VisibleEdge(u2,u4,3,0,false,1)
+  e5 = new VisibleEdge(u3,u4,2,0,false,1)
+
+
+  u1.demand = -4
+  u2.demand = -3
+  u3.demand = 2
+  u4.demand = 5
+
+}
+
+generateTestData2()
