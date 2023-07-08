@@ -96,7 +96,7 @@ class SubMenu extends Draggable {
   updateInnerHTML(dataHTML="") {
     let menuRef = document.getElementById(this.id)
     menuRef.innerHTML += `
-      <div class="card"}>
+      <div class="card">
         <div class="card-body">
         <div style="display: flex; justify-content: flex-end">
           <button id="${this.id+"button"}" class="transparentIcon">
@@ -131,7 +131,7 @@ class NodeSubMenu extends SubMenu {
       </div>
     `
     super.updateInnerHTML(html)
-    document.getElementById(this.id + "inputDemand").addEventListener('change', (e) => this.node.demand = document.getElementById(this.id + "inputDemand").value)
+    document.getElementById(this.id + "inputDemand").addEventListener('change', (e) => this.node.demand = Number(document.getElementById(this.id + "inputDemand").value))
     
   }
   setStartValues() {
@@ -159,8 +159,8 @@ class EdgeSubMenu extends SubMenu {
       </div>
     `
     super.updateInnerHTML(html)
-    document.getElementById(this.id + "inputLowerBound").addEventListener('change', (e) => this.edge.lowerBound = document.getElementById(this.id + "inputLowerBound").value)
-    document.getElementById(this.id + "inputCapacity").addEventListener('change', (e) => this.edge.capacity = document.getElementById(this.id + "inputCapacity").value)
+    document.getElementById(this.id + "inputLowerBound").addEventListener('change', (e) => this.edge.lowerBound = Number(document.getElementById(this.id + "inputLowerBound").value))
+    document.getElementById(this.id + "inputCapacity").addEventListener('change', (e) => this.edge.capacity = Number(document.getElementById(this.id + "inputCapacity").value))
   }
   setStartValues() {
     document.getElementById(this.id + "inputLowerBound").value = this.edge.lowerBound
@@ -198,17 +198,21 @@ class Mode {
       let obj = findIntersecting(mousePosX,mousePosY,SubMenu.subMenuList)
       if(obj!=null) {obj.onMouseDown()}
     }
-    // open menu if clicked
-    let node = findIntersecting(mousePosX,mousePosY,Node.nodeList)
-    let edge = findIntersectingLine(mousePosX,mousePosY,VisibleEdge.visibleEdgeList)
-    // only one menu at a time
-    if(node!=null || edge!=null) {
-      if(SubMenu.subMenuList.length>0) {
-        SubMenu.subMenuList[0].delete()
+    // if the mouse isn't hovering over an existing submenu
+    if(findIntersecting(mousePosX,mousePosY,SubMenu.subMenuList)==null) {
+      // open menu if clicked
+      let node = findIntersecting(mousePosX,mousePosY,Node.nodeList)
+      let edge = findIntersectingLine(mousePosX,mousePosY,VisibleEdge.visibleEdgeList)
+      // only one menu at a time
+      if(node!=null || edge!=null) {
+        if(SubMenu.subMenuList.length>0) {
+          SubMenu.subMenuList[0].delete()
+        }
       }
+      if(node!=null) {new NodeSubMenu(node)}
+      else if(edge!=null) {new EdgeSubMenu(edge)}
     }
-    if(node!=null) {new NodeSubMenu(node)}
-    else if(edge!=null) {new EdgeSubMenu(edge)}
+
   }
   mouseMoveFunc = (e) => {
     // if a card is selected, move it
@@ -263,7 +267,7 @@ class Mode {
   mouseDownFunc = (e) => {
     let obj = findIntersecting(mousePosX,mousePosY,Node.nodeList)
     if(obj!=null) {obj.delete()}
-    let edge = findIntersectingLine(mousePosX,mousePosY,Edge.edgeList)
+    let edge = findIntersectingLine(mousePosX,mousePosY,VisibleEdge.visibleEdgeList)
     if(edge!=null) {edge.delete()}
   }
   mouseMoveFunc = (e) => {
@@ -272,7 +276,7 @@ class Mode {
         document.body.style.cursor = "pointer"
     }
     // check if the mouse is hovering over an edge
-    else if(findIntersectingLine(mousePosX,mousePosY,Edge.edgeList)) {
+    else if(findIntersectingLine(mousePosX,mousePosY,VisibleEdge.visibleEdgeList)) {
       document.body.style.cursor = "pointer"
     }
   }
@@ -365,47 +369,55 @@ function findIntersectingLine(x,y,lineList,margin=10) {
   return null
 }
 
-  // ----------------------------------------------------
-  
-  function onMouseDown(e) {
-    // do something based on mode
-    modeDict[currentMode].onMouseDown(e)
-  }
-  
-  function onMouseMove(e) {
-    // update current mouse position
-    mousePosX = e.clientX
-    mousePosY = e.clientY
-    // set default mouse 
-    document.body.style.cursor = "auto"
-    // do something based on mode
-    modeDict[currentMode].onMouseMove(e)
-  }
-  
-  function onMouseUp(e) {
-    // do something based on mode
-    modeDict[currentMode].onMouseUp(e)
-  }
-  
-  // set event listeners
-  document.onmousedown = onMouseDown;
-  document.onmousemove = onMouseMove;
-  document.onmouseup = onMouseUp;
-  
-  function setSelectMode() {
-    currentMode = SELECT_MODE 
-  }
-  function createNewDraggable() {
-    let obj = new VisibleNode(mousePosX,mousePosY)
-    obj.onMouseDown()
-    currentMode = MOVE_MODE
-  }
-  function createLine() {
-    currentMode = LINE_MODE 
-  }
-  function setMoveMode() {
-    currentMode = MOVE_MODE
-  }
-  function setDeleteMode() {
-    currentMode = DELETE_MODE
-  }
+// ----------------------------------------------------
+
+function onMouseDown(e) {
+  // do something based on mode
+  modeDict[currentMode].onMouseDown(e)
+}
+
+function onMouseMove(e) {
+  // update current mouse position
+  mousePosX = e.clientX
+  mousePosY = e.clientY
+  // set default mouse 
+  document.body.style.cursor = "auto"
+  // do something based on mode
+  modeDict[currentMode].onMouseMove(e)
+}
+
+function onMouseUp(e) {
+  // do something based on mode
+  modeDict[currentMode].onMouseUp(e)
+}
+
+// set event listeners
+document.onmousedown = onMouseDown;
+document.onmousemove = onMouseMove;
+document.onmouseup = onMouseUp;
+function simulate() {
+  g = new Graph()
+  g.fordFulkerson()
+}
+function setSelectMode() {
+  currentMode = SELECT_MODE 
+}
+function createNewDraggable() {
+  let obj = new VisibleNode(mousePosX,mousePosY)
+  obj.onMouseDown()
+  currentMode = MOVE_MODE
+}
+function createLine() {
+  currentMode = LINE_MODE 
+}
+function setMoveMode() {
+  currentMode = MOVE_MODE
+}
+function setDeleteMode() {
+  currentMode = DELETE_MODE
+}
+
+let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+})
