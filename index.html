@@ -15,31 +15,39 @@
             <div class="px-3 py-2 text-bg-dark">
               <span class="fs-4"><i class="bi bi-x-diamond-fill"></i>  Network Flow Simulator</span>
             </div>
-            <div class="px-3 py-2 border-bottom mb-3 bg-dark-subtle">
-              <!-- run -->
-              <button class = "transparentIcon" aria-label="run simulation" onclick="simulate()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="run simulation">
-                <i class="bi bi-play-circle" style="font-size:1.5rem;"></i>
-              </button>
-              <!-- select -->
-              <button class = "transparentIcon" aria-label="select" onclick="setSelectMode()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="select">
-                <i class="bi bi-cursor" style="font-size:1.5rem;"></i>
-              </button>
-              <!-- insert node -->
-              <button class = "transparentIcon" aria-label="insert node" onclick="(function(){createNewDraggable()})()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="insert node"> 
-                <i class="bi bi-square" style="font-size:1.5rem;"></i>
-              </button>
-              <!-- insert edge -->
-              <button class = "transparentIcon" aria-label="insert edge" onclick="createLine()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="insert edge">
-                <i class="bi bi-plus" style="font-size:1.5rem;"></i>
-              </button>
-              <!-- move -->
-              <button class = "transparentIcon" aria-label="move mode" onclick="setMoveMode()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="move mode">
-                <i class="bi bi-arrows-move" style="font-size:1.5rem;"></i>
-              </button>
-              <!-- delete -->
-              <button class = "transparentIcon" aria-label="delete mode" onclick="setDeleteMode()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="delete mode">
-                <i class="bi bi-trash3" style="font-size:1.5rem;"></i>
-              </button>
+            <div class="px-3 py-2 border-bottom mb-3 bg-dark-subtle" style="display: flex; justify-content: space-between;">
+              <div>
+                <!-- run -->
+                <button class = "transparentIcon" aria-label="run simulation" onclick="simulate()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="run simulation">
+                  <i class="bi bi-play-circle" style="font-size:1.5rem;"></i>
+                </button>
+                <!-- select -->
+                <button class = "transparentIcon" aria-label="select" onclick="setSelectMode()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="select">
+                  <i class="bi bi-cursor" style="font-size:1.5rem;"></i>
+                </button>
+                <!-- insert node -->
+                <button class = "transparentIcon" aria-label="insert node" onclick="(function(){createNewDraggable()})()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="insert node"> 
+                  <i class="bi bi-square" style="font-size:1.5rem;"></i>
+                </button>
+                <!-- insert edge -->
+                <button class = "transparentIcon" aria-label="insert edge" onclick="createLine()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="insert edge">
+                  <i class="bi bi-plus" style="font-size:1.5rem;"></i>
+                </button>
+                <!-- move -->
+                <button class = "transparentIcon" aria-label="move mode" onclick="setMoveMode()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="move mode">
+                  <i class="bi bi-arrows-move" style="font-size:1.5rem;"></i>
+                </button>
+                <!-- delete -->
+                <button class = "transparentIcon" aria-label="delete mode" onclick="setDeleteMode()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="delete mode">
+                  <i class="bi bi-trash3" style="font-size:1.5rem;"></i>
+                </button>
+              </div>
+              <div>
+                <button class = "transparentIcon" aria-label="settings" onclick="toggleSettingsVisiblity()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="settings">
+                  <i class="bi bi-gear-fill" style="font-size:1.5rem;"></i>
+                </button>
+              </div>
+
             </div>
           </header>
     </head>
@@ -48,7 +56,24 @@
 
     <body>
         <div id="items"></div>
-
+        <div id="settings" style="position: relative; margin-left: auto; margin-right: 5px; width:fit-content; visibility: hidden;">
+          <div class="card">
+            <div class="card-body">
+              <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="inputGroup-sizing-sm">Default demand</span>
+                <input id="settingsDemand" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+              </div>
+              <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="inputGroup-sizing-sm">Default capacity</span>
+                <input id="settingsCapacity" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+              </div>
+              <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="inputGroup-sizing-sm">Default lower bound</span>
+                <input id="settingsLowerBound" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+              </div>
+            </div>
+          </div>
+        </div>
         <script src="global.js"></script>
         <script src="draggable.js"></script>
         <script src="data.js"></script>

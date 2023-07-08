@@ -315,7 +315,7 @@ class Mode {
         selectedNode = obj 
       }
       else {
-        new VisibleEdge(selectedNode,obj)
+        new VisibleEdge(selectedNode,obj,defaultCapacity,0,false,defaultLowerBound)
         selectedNode = null 
       }
     }
@@ -430,6 +430,7 @@ function setSelectMode() {
 }
 function createNewDraggable() {
   let obj = new VisibleNode(mousePosX,mousePosY)
+  obj.demand = defaultDemand
   obj.onMouseDown()
   currentMode = MOVE_MODE
 }
@@ -443,6 +444,36 @@ function setDeleteMode() {
   currentMode = DELETE_MODE
 }
 
+let settings = document.getElementById("settings")
+let settingsDemand = document.getElementById("settingsDemand")
+let settingsCapacity = document.getElementById("settingsCapacity")
+let settingsLowerBound = document.getElementById("settingsLowerBound")
+
+function toggleSettingsVisiblity() {
+  if(settings.style.visibility == "hidden") {showSettings()}
+  else {hideSettings()}
+}
+
+function showSettings() {
+  settings.style.visibility = "visible"
+  
+}
+function hideSettings() {
+  settings.style.visibility = "hidden"
+}
+
+hideSettings()
+
+settingsDemand.value = defaultDemand
+settingsCapacity.value = defaultCapacity
+settingsLowerBound.value = defaultLowerBound
+
+settingsDemand.addEventListener('change', (e) => defaultDemand = Number(settingsDemand.value))
+settingsCapacity.addEventListener('change', (e) => defaultCapacity = Number(settingsCapacity.value))
+settingsLowerBound.addEventListener('change', (e) => defaultLowerBound = Number(settingsLowerBound.value))
+
+
+// generate tooltips
 let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
   return new bootstrap.Tooltip(tooltipTriggerEl)

@@ -10,3 +10,7 @@ const DELETE_MODE = 3
 
 let currentMode = MOVE_MODE
 let modeDict = {}
+
+let defaultDemand = 0
+let defaultCapacity = 0 
+let defaultLowerBound = 0
