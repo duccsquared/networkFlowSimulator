@@ -1,8 +1,10 @@
 
 class VisibleNode extends Node {
+  static visibleNodeList = []
   constructor(x1,y1) {
     let divRef = document.getElementById("items")
     super(divRef,x1,y1)
+    VisibleNode.visibleNodeList.push(this)
     this.updateInnerHTML()
   }
   onMouseMove() {
@@ -16,11 +18,26 @@ class VisibleNode extends Node {
   updateInnerHTML() {
     let ref = document.getElementById(this.id)
     ref.innerHTML = `
-    <div style="background-color: #2f2ff1; border: 1px solid #1313d3; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center;">
+    <div style="${this.getBackgroundStyle()} width: 50px; height: 50px; display: flex; justify-content: center; align-items: center;">
       <p style="color: white">${this.demand}<p>
     </div> 
     `
   }
+
+  delete() {
+    VisibleNode.visibleNodeList.splice(VisibleNode.visibleNodeList.indexOf(this), 1);
+    super.delete()
+  }
+
+  getBackgroundStyle() {
+    if(this.isFullFlow()) {
+      return "background-color: #2fe12f; border: 1px solid #13c313;"
+    }
+    else {
+      return "background-color: #2f2fe1; border: 1px solid #1313d3;"
+    }
+  }
+
   get demand() {return super.demand}
   set demand(demand) {super.demand = demand; this.updateInnerHTML()}
 }
@@ -48,8 +65,14 @@ class VisibleEdge extends Edge {
     let lineRef = document.getElementById(this.id)
     lineRef.innerHTML = `
     <svg width="${maxX}px" height="${maxY}px">
-      <line x1=${this.u.x} y1=${this.u.y+Y_ADJUST} x2=${this.v.x} y2=${this.v.y+Y_ADJUST} stroke="red"/>
-    </svg>
+    <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L9,3 z" fill="red" />
+        </marker>
+      </defs>
+      <line x1=${this.u.x} y1=${this.u.y+Y_ADJUST} x2=${this.v.x} y2=${this.v.y+Y_ADJUST} stroke="red" marker-end="url(#arrow)"/>
+      <line x1="${this.u.x}" y1="${this.u.y+Y_ADJUST}" x2="${x}" y2="${y}" stroke="red" marker-end="url(#arrow)" />
+      </svg>
     <div style="position: absolute; top: ${y}px; left: ${x}px;">
       <p style="color: red">${this.lowerBound}/${this.flow}/${this.capacity}</p>
     <div>
@@ -398,6 +421,9 @@ document.onmouseup = onMouseUp;
 function simulate() {
   g = new Graph()
   g.fordFulkerson()
+  for(let node of VisibleNode.visibleNodeList) {
+    node.updateInnerHTML()
+  }
 }
 function setSelectMode() {
   currentMode = SELECT_MODE 

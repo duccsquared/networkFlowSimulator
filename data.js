@@ -71,6 +71,11 @@ class Node extends Draggable {
     }
   }
 
+  isFullFlow() {
+    return this.sourceEdge.flow == this.sourceEdge.capacity && this.sinkEdge.flow == this.sinkEdge.capacity
+  }
+
+
 }
 // ----------------------------------------------------
 class Edge extends CoordObject {
@@ -166,7 +171,6 @@ class Graph {
     Node.sourceNode.prevEdge = null 
     // loop until queue runs out or the sink is found
     while(!nodeQueue.empty()) {
-      console.log(augment)
       // get node and bottleneck
       let vals = nodeQueue.get()
       let u = vals[0]
@@ -179,7 +183,6 @@ class Graph {
       }
       // for each neighbour
       for(let i in u.startEdges) {
-        console.log(i)
         let edge = u.startEdges[i]
         // can more flow be pushed into the edge?
         if(edge.residual>0 && !edge.v.visited) {
@@ -203,11 +206,18 @@ class Graph {
     return augment
 
   }
+  resetFlows() {
+    for(let edge of Edge.edgeList) {
+      if(!edge.isInverse) {
+        edge.flow = 0
+      }
+    }
+  }
   fordFulkerson() {
+    this.resetFlows()
     let augmentedFlow = 1 
     this.reduceLowerBounds()
     while(augmentedFlow > 0) {
-      console.log(augmentedFlow)
       augmentedFlow = this.findPathAndAugment()
     }
     this.restoreLowerBounds()
